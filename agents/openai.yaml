@@ -1,0 +1,7 @@
+interface:
+  display_name: "Haoze Reading Paper"
+  short_description: "Read, explain, and annotate papers."
+  default_prompt: "Use $haoze-readingpaper to read a local research paper PDF and create a source-linked overview."
+
+policy:
+  allow_implicit_invocation: true
