@@ -15,12 +15,14 @@ Default to **Stage 1 only**. Do not automatically proceed to figure/table deep r
 
 | Stage | User intent | Output |
 | --- | --- | --- |
-| Stage 1: triage overview | overview, quick read, is this worth reading, stage 1, initial paper overview | Beginner-friendly HTML or chat report with source links |
+| Stage 1: triage overview | overview, quick read, is this worth reading, stage 1, initial paper overview | Beginner-friendly self-contained HTML with source links, plus a concise chat summary and saved file path |
 | Stage 2: figure/table deep dive | figure analysis, table analysis, deep read, stage 2, analyze every figure/table | Detailed figure/table HTML or Markdown |
 | Stage 3: Q&A | I have questions, Q&A, explain more, continue explaining | Conversational answers grounded in the paper and previous artifacts |
 | Stage 4: final note | final note, Obsidian, Zotero, stage 4, reading note | Obsidian/Zotero-friendly Markdown, optionally paired with HTML |
 
-If the user only says "analyze/read this paper" without specifying a stage, run Stage 1 and stop. End by briefly telling the user what Stage 2 would add, but do not create it yet.
+If the user only says "analyze/read this paper" without specifying a stage, run Stage 1 and stop. Stage 1's primary deliverable is an HTML overview file. End by briefly telling the user what Stage 2 would add, but do not create it yet.
+
+Do not satisfy Stage 1 with chat-only output unless the user explicitly asks for chat-only output or HTML generation is blocked after a concrete recovery attempt. If HTML is blocked, say why, report the failed path or command, and still provide the best available chat summary.
 
 ## Defaults
 
@@ -44,8 +46,9 @@ readingpaper_annotation_lang: en
 2. Resolve output directory from the user request, project context, or `output_dir`.
 3. For local PDFs, extract text with `scripts/extract_pdf_text.py`.
 4. For source links and figure/table analysis, build a visual/section index with `scripts/extract_visual_index.py`.
-5. If generating HTML, embed `references/template.css` in a `<style>` block and create a self-contained file.
-6. Report saved file paths and a concise reading summary.
+5. For Stage 1, create a self-contained HTML file in the output directory. Embed `references/template.css` in a `<style>` block.
+6. Verify generated artifact paths before final response, especially the Stage 1 HTML file.
+7. Report saved file paths and a concise reading summary.
 
 On Windows, avoid piping non-ASCII HTML or Markdown source through PowerShell stdin; write from a UTF-8 script file or a Unicode-safe runtime so Chinese text is not replaced with `?`.
 
@@ -63,10 +66,12 @@ python scripts/extract_pdf_text.py "paper.pdf" --out "readingpaper-extract.json"
 
 Use the bundled Codex Python path if the system `python` command is unavailable.
 
-2. Extract title, authors, year, venue, DOI, abstract, conclusion, and main body structure when possible.
-3. Build a beginner-friendly overview in chat or HTML.
+2. Build the visual/section index when source links, page-aware reading maps, or figure/table mentions are useful.
+3. Extract title, authors, year, venue, DOI, abstract, conclusion, and main body structure when possible.
+4. Create a beginner-friendly self-contained HTML overview in `output_dir`.
+5. Send a concise chat response with the HTML path, extraction/index paths, and a short reading summary.
 
-For beginner-friendly reports, include:
+For the Stage 1 HTML overview, include:
 
 - Paper identity: title, authors, venue/year, DOI when available.
 - Plain-language takeaway: explain the paper in 3-5 sentences without jargon.
@@ -77,7 +82,19 @@ For beginner-friendly reports, include:
 - Reading map: which sections to read first and what to watch for.
 - Worth-reading judgment: who should continue to Stage 2 and why.
 
-For overview HTML, include source links for key claims. Link to local PDF pages with relative links such as `../paper.pdf#page=7` when possible.
+Include source links for key claims. Link to local PDF pages with relative links such as `../paper.pdf#page=7` when possible. If the PDF is outside the output tree, use a local `file:///...#page=7` link or clearly list page numbers.
+
+### Stage 1 Completion Gate
+
+Before final response for Stage 1, check:
+
+- An `.html` overview file was written to the resolved output directory.
+- The HTML file is non-empty and contains the paper title, a Stage 1 label, and beginner-friendly overview sections.
+- The HTML embeds `references/template.css` or equivalent self-contained CSS.
+- Key claims include local PDF page links or page-number source references.
+- The final chat message reports the HTML path first, then any JSON extraction/index paths.
+
+If any item fails, fix it before answering. If it cannot be fixed, state the blocker explicitly instead of implying Stage 1 completed normally.
 
 ## Stage 2: Figure And Table Deep Dive
 
