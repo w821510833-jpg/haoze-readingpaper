@@ -89,11 +89,11 @@ First build the visual index:
 python scripts/extract_visual_index.py "readingpaper-extract.json" --pdf "paper.pdf" --out "readingpaper-visual-index.json"
 ```
 
-Then produce a separate figure/table HTML or Markdown section. By default, do not embed cropped figure or table images in the output; the user will usually read alongside the original PDF. Identify each visual clearly by label and page, and provide a PDF page link so the user can compare the explanation with the source figure/table. Only embed visual crops when the user explicitly asks for image previews, thumbnails, or a self-contained visual report.
+Then produce a separate figure/table HTML or Markdown section. By default, do not embed cropped figure or table images in the output; the user will usually read alongside the original PDF. Identify each visual clearly by label and page number, but do not add per-visual "open original/PDF page" buttons or links unless the user asks for clickable source navigation. Only embed visual crops when the user explicitly asks for image previews, thumbnails, or a self-contained visual report.
 
 For every figure and table:
 
-- Identify where it appears: page number, caption, section, and PDF page link.
+- Identify where it appears: page number, caption, and section. Page numbers are enough for the default Stage 2 reading aid.
 - Explain its role in the paper: motivation, method evidence, result evidence, comparison, ablation, validation, limitation, or summary.
 - Explain how to read it for beginners: axes, variables, units, color/marker meaning, rows/columns, subpanels, and what to compare first.
 - State the local takeaway: what this visual proves or supports.
@@ -135,7 +135,7 @@ For generated reading HTML:
 - Top navbar with paper title, context label, and stage label.
 - Beginner-friendly sections before technical details when the user may be new to the field.
 - Source links for key claims and summaries.
-- Figure/table cards for Stage 2, with clear labels such as `Fig. 6` or `Table 2`, PDF page links, and captions or brief source descriptions. Do not include image previews unless requested.
+- Figure/table cards for Stage 2, with clear labels such as `Fig. 6` or `Table 2`, page numbers, and captions or brief source descriptions. Do not include image previews or "open original/PDF page" buttons unless requested.
 - Bottom overview with the paper's main claim, strongest evidence, weakest point, and next questions.
 - Use `references/template.css` as the base style.
 
